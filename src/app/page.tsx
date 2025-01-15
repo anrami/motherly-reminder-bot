@@ -1,101 +1,106 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+interface TodoItem {
+  id: number;
+  text: string;
+  dueDate: string;
+  completed: boolean;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [newTodo, setNewTodo] = useState("");
+  const [dueDate, setDueDate] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const addTodo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTodo.trim()) return;
+    
+    const newItem: TodoItem = {
+      id: Date.now(),
+      text: newTodo,
+      dueDate: dueDate,
+      completed: false
+    };
+    
+    setTodos([...todos, newItem]);
+    setNewTodo("");
+    setDueDate("");
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ).sort((a, b) => {
+      // Move completed items to the bottom
+      if (a.completed === b.completed) return 0;
+      return a.completed ? 1 : -1;
+    }));
+  };
+
+  const deleteTodo = (id: number) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  return (
+    <div className="min-h-screen p-8 max-w-2xl mx-auto bg-white">
+      <h1 className="text-3xl mb-8 text-center text-black">Mom.ai</h1>
+      
+      <form onSubmit={addTodo} className="mb-8 space-y-4">
+        <div className="flex flex-col space-y-2">
+          <input
+            type="text"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="Enter a new todo"
+            className="p-2 border rounded-md text-black bg-white focus:bg-white"
+          />
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="p-2 border rounded-md text-black bg-white focus:bg-white"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button 
+          type="submit"
+          className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 transition-colors"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Add Task
+        </button>
+      </form>
+
+      <ul className="space-y-4">
+        {todos.map((todo) => (
+          <li 
+            key={todo.id}
+            className={`flex items-center justify-between p-4 border rounded-md ${
+              todo.completed ? "bg-gray-100" : ""
+            }`}
+          >
+            <div className="flex items-center space-x-4">
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => toggleTodo(todo.id)}
+                className="h-5 w-5"
+              />
+              <div className={`${todo.completed ? "line-through text-gray-500" : ""}`}>
+                <p className="font-medium">{todo.text}</p>
+                <p className="text-sm text-gray-600">Due: {todo.dueDate}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => deleteTodo(todo.id)}
+              className="text-red-500 hover:text-red-700"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
