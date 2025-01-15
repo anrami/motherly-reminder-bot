@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface TodoItem {
   id: number;
@@ -9,10 +10,26 @@ interface TodoItem {
   completed: boolean;
 }
 
+const momTypes = {
+  accusatory: {
+    name: "Accusatory Mom",
+    image: "/moms/accusatorr.png",
+  },
+  angry: {
+    name: "Angry Mom",
+    image: "/moms/angry.png",
+  },
+  disappointed: {
+    name: "Disappointed Mom",
+    image: "/moms/dissapointed.png",
+  },
+};
+
 export default function Home() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [newTodo, setNewTodo] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [selectedMom, setSelectedMom] = useState<keyof typeof momTypes>("accusatory");
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +51,6 @@ export default function Home() {
     setTodos(todos.map(todo => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ).sort((a, b) => {
-      // Move completed items to the bottom
       if (a.completed === b.completed) return 0;
       return a.completed ? 1 : -1;
     }));
@@ -46,7 +62,33 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-8 max-w-2xl mx-auto bg-white">
-      <h1 className="text-3xl mb-8 text-center text-black">Mom.ai</h1>
+      <div className="flex flex-col items-center mb-8">
+        <div className="w-full flex justify-between items-center mb-4">
+          <select
+            value={selectedMom}
+            onChange={(e) => setSelectedMom(e.target.value as keyof typeof momTypes)}
+            className="p-2 border rounded-md text-black bg-white focus:bg-white"
+          >
+            {Object.entries(momTypes).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value.name}
+              </option>
+            ))}
+          </select>
+          <h1 className="text-3xl text-center text-black">Mom.ai</h1>
+          <div className="w-[100px]"></div> {/* Spacer for alignment */}
+        </div>
+        
+        <div className="relative w-[600px] h-[600px] -my-8">
+          <Image
+            src={momTypes[selectedMom].image}
+            alt={momTypes[selectedMom].name}
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+      </div>
       
       <form onSubmit={addTodo} className="mb-8 space-y-4">
         <div className="flex flex-col space-y-2">
