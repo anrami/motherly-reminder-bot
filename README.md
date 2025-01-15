@@ -2,7 +2,7 @@
 
 ## Mom AI - Choose your mom!
 
-![Accusator](public/moms/accusator.png)
+![Accusator](public/moms/accusatorr.png)
 
 ![Angry](public/moms/angry.png)
 
